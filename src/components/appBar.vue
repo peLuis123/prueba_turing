@@ -134,20 +134,20 @@ export default {
         },
         profileUrl () {
             const profile = localStorage.getItem("profile");
-            return profile || "default_profile_url.jpg";
+            return profile || "../assets/logo.png";
         },
         userData () {
             if (this.jwtToken) {
                 const decodedToken = jwt_decode(this.jwtToken);
                 return {
-                    name: decodedToken.name || "Usuario",
-                    email: decodedToken.email || "usuario@example.com",
-                    role: decodedToken.role || "user"
+                    name: decodedToken.name,
+                    email: decodedToken.email,
+                    role: decodedToken.role
                 };
             } else {
                 return {
                     name: "Usuario",
-                    email: "usuario@example.com",
+                    email: "usuario@prueba.com",
                 };
             }
         },
