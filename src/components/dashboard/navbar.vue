@@ -26,7 +26,8 @@ export default {
     drawer: false,
     menuItems: [
       { title: 'Personal', icon: 'mdi-view-dashboard', route: '/dashboard/personal' },
-      { title: 'Servicios', icon: 'mdi-wrench', route: '/dashboard/services' }
+      { title: 'Servicios', icon: 'mdi-wrench', route: '/dashboard/services' },
+      { title: 'regresar landpage', icon: 'mdi-home', route: '/' }
     ]
   }),
 };

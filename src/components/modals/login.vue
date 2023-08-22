@@ -15,19 +15,13 @@
         <v-form>
           <v-text-field v-model="username" label="Correo" v-if="activeTab === 0"></v-text-field>
           <v-text-field v-model="password" label="Contraseña" type="password" v-if="activeTab === 0"></v-text-field>
-
           <v-text-field v-model="newUsername" label="Nombres Completos" v-if="activeTab === 1"></v-text-field>
           <v-text-field v-model="newEmail" label="Correo Electrónico" type="email" v-if="activeTab === 1"></v-text-field>
-
-          <v-file-input v-model="profileImage" name="profileImage" :rules="rules"
-            accept="image/png, image/jpeg, image/bmp" placeholder="Pick an avatar" prepend-icon="mdi-camera"
-            label="Avatar"></v-file-input>
-
+          <v-text-field v-model="avatarUrl" label="URL de la Imagen" v-if="activeTab === 1"></v-text-field>
           <v-text-field v-model="newPassword" label="Contraseña" type="password" v-if="activeTab === 1"></v-text-field>
         </v-form>
       </v-card-text>
       <v-card-actions>
-
         <v-btn v-if="activeTab === 0" color="primary" @click="login">Iniciar Sesión</v-btn>
         <v-btn v-if="activeTab === 1" color="primary" @click="register">Registrar Cuenta</v-btn>
         <v-btn color="primary" @click="closeDialog">Cancelar</v-btn>
@@ -35,9 +29,9 @@
     </v-card>
   </v-dialog>
 </template>
-
 <script>
 export default {
+
   name: 'LoginModal',
   props: {
     isOpen: Boolean
@@ -58,16 +52,13 @@ export default {
 
     return {
 
-      rules: [
-        value => !value || value.size < 2000000 || 'Avatar size should be less than 2 MB!',
-      ],
+      avatarUrl: '',
       activeTab: 0,
       username: '',
       password: '',
       newUsername: '',
       newEmail: '',
       newPassword: '',
-      profileImage: null,
     };
   },
   methods: {
@@ -86,66 +77,56 @@ export default {
             password: this.password
           })
         });
-
         const data = await response.json();
-
         if (data.message === 'Inicio de sesión exitoso') {
           localStorage.setItem('jwtToken', data.token);
+          localStorage.setItem('profile', data.imageUrl);
+          this.$emit("login-success");
+          this.clearFields()
           this.closeDialog();
         }
       } catch (error) {
         console.error('Error al iniciar sesión:', error);
       }
     },
+
+    clearFields() {
+      this.username = '';
+      this.password = '';
+      this.newUsername = '';
+      this.newEmail = '';
+      this.avatarUrl = '';
+      this.newPassword = '';
+    },
     async register () {
       try {
-        const formData = new FormData();
-        formData.append('role', 'user');
-        formData.append('name', this.newUsername);
-        formData.append('email', this.newEmail);
-        formData.append('password', this.newPassword);
-        formData.append('profileImage', this.profileImage[0]);
-        console.log('Profile Image:', this.profileImage);
-
         const response = await fetch('http://localhost:3000/v1/auth/register', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.message === 'Usuario registrado exitosamente') {
-          console.log('Usuario registrado exitosament')
-          this.closeDialog();
-        } else {
-          console.log('Usuario no registrado')
-        }
-      } catch (error) {
-        console.error('Error al registrar usuario:', error);
-      }
-    },
-    async loginWithEmailAndPassword (email, password) {
-      try {
-        const response = await fetch('http://localhost:3000/v1/auth/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            email: email,
-            password: password
-          })
+            role: 'user',
+            name: this.newUsername,
+            email: this.newEmail,
+            password: this.newPassword,
+            avatarUrl: this.avatarUrl,
+          }),
         });
 
         const data = await response.json();
+        console.log(data);
 
-        if (data.message === 'Inicio de sesión exitoso') {
-          localStorage.setItem('jwtToken', data.token);
+        if (response.ok) {
+          this.clearFields();
+          this.closeDialog();
         }
       } catch (error) {
-        console.error('Error al iniciar sesión:', error);
+        console.error('Error al registrar cuenta:', error);
       }
     },
+
   }
+
 };
 </script>

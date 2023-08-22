@@ -35,7 +35,7 @@
                     mdi-instagram
                 </v-icon>
             </v-btn>
-            <v-btn color="transparent" elevation="24" class="ma-2 black--text" @click="openLoginModal">
+            <v-btn v-if="!hasJwtToken" color="transparent" elevation="24" class="ma-2 black--text" @click="openLoginModal">
                 Login
                 <v-icon right>
                     mdi-login
@@ -43,11 +43,11 @@
             </v-btn>
 
 
-            <v-menu bottom min-width="200px" rounded offset-y>
+            <v-menu v-if="hasJwtToken" bottom min-width="200px" rounded offset-y>
                 <template v-slot:activator="{ on }">
                     <v-btn icon x-large v-on="on">
                         <v-avatar>
-                            <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John">
+                            <img :src="profileUrl" alt="Profile">
                         </v-avatar>
                     </v-btn>
                 </template>
@@ -55,32 +55,27 @@
                     <v-list-item-content class="justify-center">
                         <div class="mx-auto text-center">
                             <v-avatar>
-                                <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John">
+                                <img :src="profileUrl" alt="Profile">
                             </v-avatar>
-                            <h3>{{ user.fullName }}</h3>
-                            <p class="text-caption mt-1">
-                                {{ user.email }}
-                            </p>
+                            <h3>{{ userName }}</h3>
+                            <p class="text-caption mt-1">{{ userEmail }}</p>
                             <v-divider class="my-3"></v-divider>
-                            <v-btn depressed rounded text>
-                                Configurar cuenta
-                            </v-btn>
+                            <v-btn v-if="userRole === 'admin'" depressed rounded text to="/dashboard">Dashboard</v-btn>
                             <v-divider class="my-3"></v-divider>
-                            <v-btn depressed rounded text>
-                                Cerrar Sesion
-                            </v-btn>
+                            <v-btn depressed rounded text @click="logout">Cerrar Sesión</v-btn>
                         </div>
                     </v-list-item-content>
                 </v-card>
             </v-menu>
 
-            <LoginModal :is-open="loginModalOpen" @close="loginModalOpen = false" />
+            <LoginModal :is-open="loginModalOpen" @close="loginModalOpen = false" @login-success="onLoginSuccess" />
         </v-app-bar>
     </div>
 </template>
 
 <script>
 import LoginModal from "@/components/modals/login";
+import jwt_decode from "jwt-decode";
 export default {
     name: 'appBar',
     components: {
@@ -88,6 +83,7 @@ export default {
     },
     data () {
         return {
+            jwtToken: localStorage.getItem("jwtToken"),
             user: {
                 initials: 'JD',
                 fullName: 'John Doe',
@@ -110,8 +106,65 @@ export default {
     methods: {
         openLoginModal () {
             this.loginModalOpen = true;
-        }
-    }
+        },
+        onLoginSuccess () {
+            this.jwtToken = localStorage.getItem("jwtToken");
+            const profileData = JSON.parse(localStorage.getItem("profile"));
+            this.user = {
+                fullName: profileData.name,
+                email: profileData.email,
+                avatarUrl: profileData.avatarUrl
+            };
+            this.loginModalOpen = false;
+        },
+
+        logout () {
+            localStorage.removeItem("jwtToken");
+            localStorage.removeItem("profile");
+            this.jwtToken = null;
+            this.user = null;
+        },
+
+
+
+    },
+    computed: {
+        hasJwtToken () {
+            return !!this.jwtToken;
+        },
+        profileUrl () {
+            const profile = localStorage.getItem("profile");
+            return profile || "default_profile_url.jpg";
+        },
+        userData () {
+            if (this.jwtToken) {
+                const decodedToken = jwt_decode(this.jwtToken);
+                return {
+                    name: decodedToken.name || "Usuario",
+                    email: decodedToken.email || "usuario@example.com",
+                    role: decodedToken.role || "user"
+                };
+            } else {
+                return {
+                    name: "Usuario",
+                    email: "usuario@example.com",
+                };
+            }
+        },
+        userName () {
+            return this.userData.name;
+        },
+        userRole () {
+
+            return this.userData.role;
+            // console.log(this.userData.role);
+        },
+        userEmail () {
+
+            return this.userData.email;
+
+        },
+    },
 };
 </script>
 
