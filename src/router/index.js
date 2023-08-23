@@ -4,6 +4,8 @@ import HomeView from '../views/indexView.vue'
 import dashboard from '../views/dashboard.vue'
 import personal from '../components/dashboard/personalAdmin.vue'
 import services from '../components/dashboard/servicesAdmin.vue'
+
+import jwt_decode from "jwt-decode";
 Vue.use(VueRouter)
 
 const routes = [
@@ -16,6 +18,7 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: dashboard,
+    meta: { requiresAdmin: true },
     children: [
       {
         path: 'personal',
@@ -34,5 +37,21 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
-
+router.beforeEach((to, from, next) => {
+  const jwtToken = localStorage.getItem('jwtToken');
+  if (to.matched.some(record => record.meta.requiresAdmin)) {
+    if (jwtToken) {
+      const decodedToken = jwt_decode(jwtToken);
+      if (decodedToken.role === 'admin') {
+        next();
+      } else {
+        next('/');
+      }
+    } else {
+      next('/');
+    }
+  } else {
+    next();
+  }
+})
 export default router

@@ -5,7 +5,9 @@
     <personalCards />
     <servicesClinica />
     <comentariosCards />
+    <newComentarios/>
     <footerBottom />
+
   </div>
 </template>
 
@@ -16,6 +18,7 @@ import personalCards from '../components/personal'
 import servicesClinica from '../components/services'
 import comentariosCards from '../components/comentarios'
 import footerBottom from '../components/footer'
+import newComentarios from '../components/addComentarios'
 export default {
 
   name: 'HomeView',
@@ -26,7 +29,8 @@ export default {
     personalCards,
     servicesClinica,
     comentariosCards,
-    footerBottom
+    footerBottom,
+    newComentarios
 
   },
 }

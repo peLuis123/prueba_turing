@@ -2,23 +2,14 @@
     <div>
         <v-app-bar class="bottom" height="90" app color="#CFD8DF">
             <div class="d-flex align-center">
-                <v-img alt="Logo" class="shrink mr-2" contain src="https://turing-ia.com/assets/img/logo-turing.webp"
+                <v-img alt="Logo" class="shrink mr-2" contain src="../../src/assets/img/logoclinica.png"
                     transition="scale-transition" width="70" />
-                <span>TURING-IA</span>
+                <span>Clinica Sanfleet</span>
             </div>
             <v-spacer></v-spacer>
-            <v-menu offset-y v-for="(menu, index) in menus" :key="index">
-                <template v-slot:activator="{ on }">
-                    <v-btn v-on="on" text>
-                        {{ menu.name }}
-                    </v-btn>
-                </template>
-                <v-list>
-                    <v-list-item v-for="(submenu, subIndex) in menu.submenus" :key="subIndex">
-                        <v-list-item-title>{{ submenu }}</v-list-item-title>
-                    </v-list-item>
-                </v-list>
-            </v-menu>
+            <v-btn v-for="(menu, index) in menus" :key="index" class="mx-2" elevation="0" color="transparent">
+                {{ menu.name }}
+            </v-btn>
             <v-spacer></v-spacer>
             <v-btn class="mx-2" fab small color="transparent">
                 <v-icon>
@@ -47,7 +38,7 @@
                 <template v-slot:activator="{ on }">
                     <v-btn icon x-large v-on="on">
                         <v-avatar>
-                            <img :src="profileUrl" alt="Profile">
+                            <img :src=getProfileImageUrl alt="Profile">
                         </v-avatar>
                     </v-btn>
                 </template>
@@ -55,11 +46,11 @@
                     <v-list-item-content class="justify-center">
                         <div class="mx-auto text-center">
                             <v-avatar>
-                                <img :src="profileUrl" alt="Profile">
+                                <img :src=getProfileImageUrl alt="Profile">
                             </v-avatar>
                             <h3>{{ userName }}</h3>
                             <p class="text-caption mt-1">{{ userEmail }}</p>
-                            <v-divider class="my-3"></v-divider>
+                            <v-divider class="my-3" v-if="userRole === 'admin'"></v-divider>
                             <v-btn v-if="userRole === 'admin'" depressed rounded text to="/dashboard">Dashboard</v-btn>
                             <v-divider class="my-3"></v-divider>
                             <v-btn depressed rounded text @click="logout">Cerrar Sesión</v-btn>
@@ -85,69 +76,80 @@ export default {
         return {
             jwtToken: localStorage.getItem("jwtToken"),
             user: {
-                initials: 'JD',
-                fullName: 'John Doe',
-                email: 'john.doe@doe.com',
+                initials: 'NU',
+                fullName: 'nombre de usuario',
+                email: 'example@correo.com',
             },
 
             menus: [
                 {
-                    name: 'Menu 1',
-                    submenus: ['Submenu 1', 'Submenu 2']
+                    name: 'Inicio',
                 },
                 {
-                    name: 'Menu 2',
-                    submenus: ['Submenu A', 'Submenu B']
-                }
+                    name: 'Personal',
+                },
+                {
+                    name: 'servicios',
+                },
+                {
+                    name: 'comentarios',
+                },
+
             ],
             loginModalOpen: false
         };
     },
     methods: {
+
         openLoginModal () {
             this.loginModalOpen = true;
         },
         onLoginSuccess () {
             this.jwtToken = localStorage.getItem("jwtToken");
-            const profileData = JSON.parse(localStorage.getItem("profile"));
+            const profileData = this.jwtToken
             this.user = {
                 fullName: profileData.name,
                 email: profileData.email,
-                avatarUrl: profileData.avatarUrl
+
             };
+            this.$root.$emit("userLoggedIn");
             this.loginModalOpen = false;
+
         },
 
         logout () {
             localStorage.removeItem("jwtToken");
-            localStorage.removeItem("profile");
             this.jwtToken = null;
             this.user = null;
+            this.$root.$emit("userLogout");
+
         },
-
-
-
     },
     computed: {
+        getProfileImageUrl () {
+
+            if (this.userData.profile) {
+                return `http://localhost:3000/${this.userData.profile}`;
+            }
+            return '';
+        },
         hasJwtToken () {
             return !!this.jwtToken;
         },
-        profileUrl () {
-            const profile = localStorage.getItem("profile");
-            return profile || "default_profile_url.jpg";
-        },
+
         userData () {
             if (this.jwtToken) {
                 const decodedToken = jwt_decode(this.jwtToken);
                 return {
-                    name: decodedToken.name || "Usuario",
-                    email: decodedToken.email || "usuario@example.com",
-                    role: decodedToken.role || "user"
+                    name: decodedToken.name,
+                    email: decodedToken.email,
+                    role: decodedToken.role,
+                    profile: decodedToken.profile
                 };
             } else {
                 return {
                     name: "Usuario",
-                    email: "usuario@example.com",
+                    email: "usuario@prueba.com",
                 };
             }
         },
@@ -157,7 +159,6 @@ export default {
         userRole () {
 
             return this.userData.role;
-            // console.log(this.userData.role);
         },
         userEmail () {
 
@@ -167,5 +168,3 @@ export default {
     },
 };
 </script>
-
-<style scoped></style>
