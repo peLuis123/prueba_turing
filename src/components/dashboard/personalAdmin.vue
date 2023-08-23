@@ -1,71 +1,87 @@
 <template>
-    <v-data-table :headers="headers" :search="search" :items="items" class="elevation-1 tabla">
-        <template v-slot:top>
-            <v-toolbar flat>
-                <v-toolbar-title>Informacion del Personal</v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-spacer></v-spacer>
-                <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
-                    hide-details></v-text-field>
+    <div>
+        <v-data-table :headers="headers" :search="search" :items="items" class="elevation-1 tabla">
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-toolbar-title>Informacion del Personal</v-toolbar-title>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
+                        hide-details></v-text-field>
 
-                <v-dialog v-model="dialog" max-width="500px">
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">Añadir</v-btn>
-                    </template>
-                    <v-card>
-                        <form @submit.prevent="save">
-                            <v-card-title>
-                                <span class="text-h5">{{ formTitle }}</span>
-                            </v-card-title>
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12" sm="6">
-                                            <v-text-field v-model="editedItem.name" label="Nombre"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6">
-                                            <v-select v-model="editedItem.area" :items="areas" label="Area"></v-select>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-file-input v-model="editedItem.image" accept="image/*"
-                                                label="Perfil"></v-file-input>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-textarea v-model="editedItem.description" label="Descripcion"></v-textarea>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                                <v-btn type="submit" color="blue darken-1" text>Guardar</v-btn>
-                            </v-card-actions>
-                        </form>
-                    </v-card>
-                </v-dialog>
-            </v-toolbar>
-        </template>
+                    <v-dialog v-model="dialog" max-width="500px">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">Añadir</v-btn>
+                        </template>
+                        <v-card>
+                            <form @submit.prevent="save">
+                                <v-card-title>
+                                    <span class="text-h5">{{ formTitle }}</span>
+                                </v-card-title>
+                                <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" sm="6">
+                                                <v-text-field v-model="editedItem.name" label="Nombre"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" sm="6">
+                                                <v-select v-model="editedItem.area" :items="areas" label="Area"></v-select>
+                                            </v-col>
+                                            <v-col cols="12">
+                                                <v-file-input v-model="editedItem.image" accept="image/*"
+                                                    label="Perfil"></v-file-input>
+                                            </v-col>
+                                            <v-col cols="12">
+                                                <v-textarea v-model="editedItem.description"
+                                                    label="Descripcion"></v-textarea>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
+                                    <v-btn type="submit" color="blue darken-1" text>Guardar</v-btn>
+                                </v-card-actions>
+                            </form>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
+            </template>
 
-        <template v-slot:[`item.actions`]="{ item }">
-            <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-            <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
-        </template>
+            <template v-slot:[`item.actions`]="{ item }">
+                <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+                <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
+            </template>
 
-        <template v-slot:no-data>
-            <v-alert type="warning" class="mb-2" icon="mdi-alert-circle-outline">
-                ¡No hay informacion disponible
-            </v-alert>
-        </template>
-    </v-data-table>
+            <template v-slot:no-data>
+                <v-alert type="warning" class="mb-2" icon="mdi-alert-circle-outline">
+                    ¡No hay informacion disponible
+                </v-alert>
+            </template>
+        </v-data-table>
+        <loaderError :show="errorLoader"/>
+        <LoaderLoading :show="loading" />
+        <LoaderSuccess :show="success" />
+    </div>
 </template>
 <script>
-
+import loaderError from "../loaders/loaderError";
+import LoaderLoading from "../loaders/loaderLoanding";
+import LoaderSuccess from "../loaders/loaderExito";
 
 export default {
     name: "personalCards",
+    components: {
+        loaderError,
+        LoaderLoading,
+        LoaderSuccess
+    },
     data: () => ({
         dialog: false,
+        errorLoader: false,
+        loading: false,
+        success: false,
 
         headers: [
             { text: "Nombre", value: "name", sortable: true },
@@ -105,12 +121,10 @@ export default {
             val || this.close();
         },
     },
-
     created () {
         this.fetchAllPersons();
         this.fetchAllAreas();
     },
-
     methods: {
         async fetchAllAreas () {
             try {
@@ -156,21 +170,35 @@ export default {
             const index = this.items.indexOf(item);
             if (index > -1) {
                 try {
+                    this.loading = true;
+
                     const response = await fetch(`http://localhost:3000/v1/personal/deleteperson/${item.id}`, {
                         method: "DELETE",
                     });
-
                     if (response.ok) {
+                        this.success = true;
                         this.items.splice(index, 1);
-
                     } else {
                         console.error("Error al eliminar el registro");
+                        this.errorLoader = true;
+
                     }
                 } catch (error) {
                     console.error("Error al procesar la solicitud:", error);
+                    this.errorLoader = true;
+
+                } finally {
+                    this.loading = false;
+                    setTimeout(() => {
+                        this.success = false;
+                    }, 2000);
+                    setTimeout(() => {
+                        this.errorLoader = false;
+                    }, 2000);
                 }
             }
         },
+
         close () {
             this.dialog = false;
             this.$nextTick(() => {
@@ -180,14 +208,15 @@ export default {
         },
 
         async save () {
-            console.log(this.editedItem.id)
             if (this.editedIndex > -1) {
                 const formData = new FormData();
                 formData.append("name", this.editedItem.name);
                 formData.append("area", this.editedItem.area);
                 formData.append("description", this.editedItem.description);
                 formData.append("image", this.editedItem.image);
+
                 try {
+                    this.loading = true;
                     const response = await fetch(
                         `http://localhost:3000/v1/personal/editperson/${this.editedItem.id}`,
                         {
@@ -201,13 +230,27 @@ export default {
                         this.items.splice(this.editedIndex, 1, updatedItem);
                         this.fetchAllPersons();
                         this.close();
+                        this.success = true;
                     } else {
                         console.error("Error al editar el registro");
+                        this.close();
+                        this.errorLoader = true;
                     }
                 } catch (error) {
                     console.error("Error al procesar la solicitud:", error);
+                    this.close();
+                    this.errorLoader = true;
+                } finally {
+                    setTimeout(() => {
+                        this.success = false;
+                    }, 2000);
+                    this.loading = false;
+                    setTimeout(() => {
+                        this.errorLoader = false;
+                    }, 2000);
                 }
             } else {
+                this.loading = true;
                 const formData = new FormData();
                 formData.append("name", this.editedItem.name);
                 formData.append("area", this.editedItem.area);
@@ -221,18 +264,35 @@ export default {
                     });
 
                     if (response.ok) {
+                        this.success = true;
                         const newItem = await response.json();
                         this.items.push(newItem);
                         this.fetchAllPersons();
                         this.close();
+
                     } else {
                         console.error("Error al agregar el registro");
+                        this.close();
+                        this.errorLoader = true;
+
+
                     }
                 } catch (error) {
                     console.error("Error al procesar la solicitud:", error);
+                    this.close();
+                    this.errorLoader = true;
+
+                } finally {
+                    this.loading = false;
+                    setTimeout(() => {
+                        this.success = false;
+                    }, 2000);
+                    setTimeout(() => {
+                        this.errorLoader = false;
+                    }, 2000);
                 }
             }
-        },
+        }
     },
 };
 </script>

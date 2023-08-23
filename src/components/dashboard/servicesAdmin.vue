@@ -1,75 +1,92 @@
 <template>
-    <v-data-table :headers="headers" :search="search" :items="items" class="elevation-1 tabla">
-        <template v-slot:top>
-            <v-toolbar flat>
-                <v-toolbar-title>Informacion de los servicios</v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-spacer></v-spacer>
-                <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
-                    hide-details></v-text-field>
+    <div>
+        <v-data-table :headers="headers" :search="search" :items="items" class="elevation-1 tabla">
+            <template v-slot:top>
+                <v-toolbar flat>
+                    <v-toolbar-title>Informacion de los servicios</v-toolbar-title>
+                    <v-divider class="mx-4" inset vertical></v-divider>
+                    <v-spacer></v-spacer>
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Buscar" single-line
+                        hide-details></v-text-field>
 
-                <v-dialog v-model="dialog" max-width="500px">
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">Añadir</v-btn>
-                    </template>
-                    <v-card>
-                        <form @submit.prevent="save">
-                            <v-card-title>
-                                <span class="text-h5">{{ formTitle }}</span>
-                            </v-card-title>
-                            <v-card-text>
-                                <v-container>
-                                    <v-row>
-                                        <v-col cols="12" sm="6">
-                                            <v-text-field v-model="editedItem.name" label="Nombre"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12" sm="6">
-                                            <v-select v-model="editedItem.category" :items="categories"
-                                                label="Categoria"></v-select>
-                                        </v-col>
-                                        <v-col cols="12" sm="6">
-                                            <v-text-field v-model="editedItem.price" label="Precio"></v-text-field>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-file-input v-model="editedItem.image" accept="image/*"
-                                                label="Imagen"></v-file-input>
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <v-textarea v-model="editedItem.description" label="Descripcion"></v-textarea>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                            </v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
-                                <v-btn type="submit" color="blue darken-1" text>Guardar</v-btn>
-                            </v-card-actions>
-                        </form>
-                    </v-card>
-                </v-dialog>
-            </v-toolbar>
-        </template>
+                    <v-dialog v-model="dialog" max-width="500px">
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">Añadir</v-btn>
+                        </template>
+                        <v-card>
+                            <form @submit.prevent="save">
+                                <v-card-title>
+                                    <span class="text-h5">{{ formTitle }}</span>
+                                </v-card-title>
+                                <v-card-text>
+                                    <v-container>
+                                        <v-row>
+                                            <v-col cols="12" sm="6">
+                                                <v-text-field v-model="editedItem.name" label="Nombre"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12" sm="6">
+                                                <v-select v-model="editedItem.category" :items="categories"
+                                                    label="Categoria"></v-select>
+                                            </v-col>
+                                            <v-col cols="12" sm="6">
+                                                <v-text-field v-model="editedItem.price" label="Precio"></v-text-field>
+                                            </v-col>
+                                            <v-col cols="12">
+                                                <v-file-input v-model="editedItem.image" accept="image/*"
+                                                    label="Imagen"></v-file-input>
+                                            </v-col>
+                                            <v-col cols="12">
+                                                <v-textarea v-model="editedItem.description"
+                                                    label="Descripcion"></v-textarea>
+                                            </v-col>
+                                        </v-row>
+                                    </v-container>
+                                </v-card-text>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
+                                    <v-btn type="submit" color="blue darken-1" text>Guardar</v-btn>
+                                </v-card-actions>
+                            </form>
+                        </v-card>
+                    </v-dialog>
+                </v-toolbar>
+            </template>
 
-        <template v-slot:[`item.actions`]="{ item }">
-            <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
-            <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
-        </template>
+            <template v-slot:[`item.actions`]="{ item }">
+                <v-icon small class="mr-2" @click="editItem(item)">mdi-pencil</v-icon>
+                <v-icon small @click="deleteItem(item)">mdi-delete</v-icon>
+            </template>
 
-        <template v-slot:no-data>
-            <v-alert type="warning" class="mb-2" icon="mdi-alert-circle-outline">
-                No information available
-            </v-alert>
-        </template>
-    </v-data-table>
+            <template v-slot:no-data>
+                <v-alert type="warning" class="mb-2" icon="mdi-alert-circle-outline">
+                    No information available
+                </v-alert>
+            </template>
+
+        </v-data-table>
+        <loaderError :show="errorLoader" />
+        <LoaderLoading :show="loading" />
+        <LoaderSuccess :show="success" />
+    </div>
 </template>
 
 <script>
+import loaderError from "../loaders/loaderError";
+import LoaderLoading from "../loaders/loaderLoanding";
+import LoaderSuccess from "../loaders/loaderExito";
 export default {
     name: "serviceCards",
+    components: {
+        loaderError,
+        LoaderLoading,
+        LoaderSuccess
+    },
     data: () => ({
         dialog: false,
-
+        errorLoader: false,
+        loading: false,
+        success: false,
         headers: [
             { text: "Nombre", value: "name", sortable: true },
             { text: "Categoria", value: "category", sortable: true },
@@ -152,7 +169,7 @@ export default {
             this.editedItem.id = item.id;
             this.editedItem.name = item.name;
             this.editedItem.category = item.category;
-            this.editedItem.price = item.price; // New price field
+            this.editedItem.price = item.price;
             this.editedItem.description = item.description;
             this.editedItem.image = null;
             this.dialog = true;
@@ -163,20 +180,34 @@ export default {
             const index = this.items.indexOf(item);
             if (index > -1) {
                 try {
+                    this.loading = true;
+
                     const response = await fetch(`http://localhost:3000/v1/services/deleteservice/${item.id}`, {
                         method: "DELETE",
                     });
 
                     if (response.ok) {
                         this.items.splice(index, 1);
+                        this.success = true;
                     } else {
                         console.error("Error deleting service");
+                        this.errorLoader = true;
                     }
                 } catch (error) {
                     console.error("Error processing request:", error);
+                    this.errorLoader = true;
+                } finally {
+                    this.loading = false;
+                    setTimeout(() => {
+                        this.success = false;
+                    }, 2000);
+                    setTimeout(() => {
+                        this.errorLoader = false;
+                    }, 2000);
                 }
             }
         },
+
 
         close () {
             this.dialog = false;
@@ -193,7 +224,10 @@ export default {
                 formData.append("price", this.editedItem.price);
                 formData.append("description", this.editedItem.description);
                 formData.append("image", this.editedItem.image);
+
                 try {
+                    this.loading = true;
+
                     const response = await fetch(
                         `http://localhost:3000/v1/services/editservice/${this.editedItem.id}`,
                         {
@@ -207,11 +241,24 @@ export default {
                         this.items.splice(this.editedIndex, 1, updatedItem);
                         this.fetchAllServices();
                         this.close();
+                        this.success = true;
                     } else {
                         console.error("Error editing service");
+                        this.close();
+                        this.errorLoader = true;
                     }
                 } catch (error) {
                     console.error("Error processing request:", error);
+                    this.close();
+                    this.errorLoader = true;
+                } finally {
+                    this.loading = false;
+                    setTimeout(() => {
+                        this.success = false;
+                    }, 2000);
+                    setTimeout(() => {
+                        this.errorLoader = false;
+                    }, 2000);
                 }
             } else {
                 const formData = new FormData();
@@ -222,6 +269,8 @@ export default {
                 formData.append("image", this.editedItem.image);
 
                 try {
+                    this.loading = true;
+
                     const response = await fetch("http://localhost:3000/v1/services/addservice", {
                         method: "POST",
                         body: formData,
@@ -232,11 +281,24 @@ export default {
                         this.items.push(newService);
                         this.fetchAllServices();
                         this.close();
+                        this.success = true;
                     } else {
                         console.error("Error adding service");
+                        this.close();
+                        this.errorLoader = true;
                     }
                 } catch (error) {
                     console.error("Error processing request:", error);
+                    this.close();
+                    this.errorLoader = true;
+                } finally {
+                    this.loading = false;
+                    setTimeout(() => {
+                        this.success = false;
+                    }, 2000);
+                    setTimeout(() => {
+                        this.errorLoader = false;
+                    }, 2000);
                 }
             }
         },

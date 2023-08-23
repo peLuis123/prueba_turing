@@ -39,7 +39,7 @@
     data: () => ({
       allCategories: [],
       selectedCategory: '',
-      originalServices: [], // Add your service data here
+      originalServices: [],
       services: [],
       currentPage: 1,
       servicesPerPage: 3,

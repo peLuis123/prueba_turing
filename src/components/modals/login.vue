@@ -81,7 +81,6 @@ export default {
         if (data.message === 'Inicio de sesión exitoso') {
           localStorage.setItem('jwtToken', data.token);
           this.$emit("login-success");
-          // console.log(data.token)
 
           this.clearFields()
           this.closeDialog();

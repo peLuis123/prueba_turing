@@ -159,7 +159,6 @@ export default {
         userRole () {
 
             return this.userData.role;
-            // console.log(this.userData.role);
         },
         userEmail () {
 
@@ -169,5 +168,3 @@ export default {
     },
 };
 </script>
-
-<style scoped></style>

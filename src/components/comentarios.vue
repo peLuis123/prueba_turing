@@ -82,20 +82,14 @@ export default {
             this.fetchComments();
 
         });
-
-
-
-
     },
     methods: {
         async fetchComments () {
-
             try {
 
                 const response = await fetch('http://localhost:3000/v1/comentarios/getcomments');
                 const data = await response.json();
                 this.comments = data;
-                // console.log(data)
             } catch (error) {
                 console.error('Error al obtener los comentarios:', error);
             }
@@ -108,10 +102,9 @@ export default {
                         'Content-Type': 'application/json'
                     }
                 });
-
                 if (response.ok) {
                     console.log('Comentario eliminado exitosamente');
-                    this.fetchComments(); // Actualiza la lista de comentarios
+                    this.fetchComments();
                 } else {
                     console.error('Error al eliminar el comentario');
                 }
@@ -137,11 +130,15 @@ export default {
 </script>
 
 <style scoped>
-.comments {
 
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+.comments {
+    background-color: #CFD8DF;
+    padding: 50px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin: 0 -10px;
+    flex-direction: column;
 }
 
 .comment-row {

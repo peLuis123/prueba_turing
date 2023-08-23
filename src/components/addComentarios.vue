@@ -1,4 +1,5 @@
 <template>
+  <div class="main">
   <div class="container">
     <v-card class="comentarios">
       <v-card-title>Agregar Comentario</v-card-title>
@@ -10,23 +11,38 @@
         </v-form>
       </v-card-text>
     </v-card>
+    <loaderError :show="errorLoader" />
+    <LoaderLoading :show="loading" />
+    <LoaderSuccess :show="success" />
   </div>
+</div>
 </template>
 
 <script>
 import jwt_decode from "jwt-decode";
+import loaderError from "./loaders/loaderError";
+import LoaderLoading from "./loaders/loaderLoanding";
+import LoaderSuccess from "./loaders/loaderExito";
 
 export default {
   name: "newComentarios",
-  data() {
+  components: {
+    loaderError,
+    LoaderLoading,
+    LoaderSuccess
+  },
+  data () {
     return {
       newComment: "",
+      errorLoader: false,
+      loading: false,
+      success: false,
       newRating: null
 
     };
   },
   methods: {
-    addComment() {
+    addComment () {
       if (this.$refs.form.validate()) {
         const jwtToken = localStorage.getItem("jwtToken");
         const decodedToken = jwt_decode(jwtToken);
@@ -40,6 +56,9 @@ export default {
           comment: this.newComment
         };
 
+        this.loading = true;
+        this.success = false; // Desactivar el loader de éxito
+
         fetch("http://localhost:3000/v1/comentarios/addcomment", {
           method: "POST",
           headers: {
@@ -47,15 +66,32 @@ export default {
           },
           body: JSON.stringify(commentData)
         })
-          .then(response => response.json())
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error("Error al agregar el comentario");
+            }
+          })
           .then(data => {
             console.log(data.message);
             this.newComment = "";
             this.newRating = null;
             this.$root.$emit("commentAdded");
+            this.success = true;
           })
           .catch(error => {
             console.error("Error al agregar el comentario:", error);
+            this.errorLoader = true;
+          })
+          .finally(() => {
+            this.loading = false;
+            setTimeout(() => {
+              this.success = false;
+            }, 2000);
+            setTimeout(() => {
+              this.errorLoader = false;
+            }, 2000);
           });
       }
     }
@@ -64,8 +100,10 @@ export default {
 </script>
 
 <style scoped>
-.container{
-  padding-top: 50px;
+.main{
+  background-color: #CFD8DF;
 }
-
+.container {
+  padding: 50px 0
+}
 </style>
