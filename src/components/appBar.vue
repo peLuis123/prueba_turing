@@ -47,7 +47,7 @@
                 <template v-slot:activator="{ on }">
                     <v-btn icon x-large v-on="on">
                         <v-avatar>
-                            <img :src="profileUrl" alt="Profile">
+                            <img :src=getProfileImageUrl alt="Profile">
                         </v-avatar>
                     </v-btn>
                 </template>
@@ -55,7 +55,7 @@
                     <v-list-item-content class="justify-center">
                         <div class="mx-auto text-center">
                             <v-avatar>
-                                <img :src="profileUrl" alt="Profile">
+                                <img :src=getProfileImageUrl alt="Profile">
                             </v-avatar>
                             <h3>{{ userName }}</h3>
                             <p class="text-caption mt-1">{{ userEmail }}</p>
@@ -109,40 +109,40 @@ export default {
         },
         onLoginSuccess () {
             this.jwtToken = localStorage.getItem("jwtToken");
-            const profileData = JSON.parse(localStorage.getItem("profile"));
+            const profileData = this.jwtToken
             this.user = {
                 fullName: profileData.name,
                 email: profileData.email,
-                avatarUrl: profileData.avatarUrl
             };
             this.loginModalOpen = false;
         },
 
         logout () {
             localStorage.removeItem("jwtToken");
-            localStorage.removeItem("profile");
             this.jwtToken = null;
             this.user = null;
         },
-
-
-
     },
     computed: {
+        getProfileImageUrl () {
+
+            if (this.userData.profile) {
+                return `http://localhost:3000/${this.userData.profile}`;
+            }
+            return '';
+        },
         hasJwtToken () {
             return !!this.jwtToken;
         },
-        profileUrl () {
-            const profile = localStorage.getItem("profile");
-            return profile || "../assets/logo.png";
-        },
+
         userData () {
             if (this.jwtToken) {
                 const decodedToken = jwt_decode(this.jwtToken);
                 return {
                     name: decodedToken.name,
                     email: decodedToken.email,
-                    role: decodedToken.role
+                    role: decodedToken.role,
+                    profile: decodedToken.profile
                 };
             } else {
                 return {

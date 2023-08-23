@@ -41,17 +41,17 @@ router.beforeEach((to, from, next) => {
   const jwtToken = localStorage.getItem('jwtToken');
   if (to.matched.some(record => record.meta.requiresAdmin)) {
     if (jwtToken) {
-      const decodedToken = jwt_decode(jwtToken); // Decodifica el token usando jwt_decode
+      const decodedToken = jwt_decode(jwtToken);
       if (decodedToken.role === 'admin') {
-        next(); // Permite el acceso si el usuario es admin
+        next();
       } else {
-        next('/'); // Redirige a la página principal si el usuario no es admin
+        next('/');
       }
     } else {
-      next('/'); // Redirige a la página principal si no hay token
+      next('/');
     }
   } else {
-    next(); // Permite el acceso a otras rutas sin restricciones
+    next();
   }
 })
 export default router

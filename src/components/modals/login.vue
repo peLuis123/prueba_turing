@@ -17,7 +17,7 @@
           <v-text-field v-model="password" label="Contraseña" type="password" v-if="activeTab === 0"></v-text-field>
           <v-text-field v-model="newUsername" label="Nombres Completos" v-if="activeTab === 1"></v-text-field>
           <v-text-field v-model="newEmail" label="Correo Electrónico" type="email" v-if="activeTab === 1"></v-text-field>
-          <v-text-field v-model="avatarUrl" label="URL de la Imagen" v-if="activeTab === 1"></v-text-field>
+          <v-file-input v-if="activeTab === 1" v-model="avatarFile" label="Imagen de Perfil" accept=".png,.jpg,.jpeg"></v-file-input>
           <v-text-field v-model="newPassword" label="Contraseña" type="password" v-if="activeTab === 1"></v-text-field>
         </v-form>
       </v-card-text>
@@ -52,7 +52,7 @@ export default {
 
     return {
 
-      avatarUrl: '',
+      avatarFile: null,
       activeTab: 0,
       username: '',
       password: '',
@@ -80,7 +80,6 @@ export default {
         const data = await response.json();
         if (data.message === 'Inicio de sesión exitoso') {
           localStorage.setItem('jwtToken', data.token);
-          localStorage.setItem('profile', data.imageUrl);
           this.$emit("login-success");
           this.clearFields()
           this.closeDialog();
@@ -100,18 +99,21 @@ export default {
     },
     async register () {
       try {
+        if (!this.avatarFile) {
+          console.log('Debe seleccionar una imagen');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('avatar', this.avatarFile);
+        formData.append('role', 'user');
+        formData.append('name', this.newUsername);
+        formData.append('email', this.newEmail);
+        formData.append('password', this.newPassword);
+
         const response = await fetch('http://localhost:3000/v1/auth/register', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            role: 'user',
-            name: this.newUsername,
-            email: this.newEmail,
-            password: this.newPassword,
-            avatarUrl: this.avatarUrl,
-          }),
+          body: formData,
         });
 
         const data = await response.json();
