@@ -14,7 +14,7 @@
     </v-navigation-drawer>
     <v-app-bar color="deep-purple" dark style="padding: 0 15px">
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
-      <v-toolbar-title>Title</v-toolbar-title>
+      <v-toolbar-title>Portal Administrativo</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-menu bottom min-width="200px" rounded offset-y>
         <template v-slot:activator="{ on }">

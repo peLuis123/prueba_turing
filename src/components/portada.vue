@@ -13,18 +13,21 @@
 </template>
 
 <script>
+import bannerImage1 from '@/assets/img/portada1.jpg';
+import bannerImage2 from '@/assets/img/banner1.png';
 export default {
   name: 'portadaComponent',
+
   data() {
     return {
       items: [
         {
-          src: 'https://laborex.smartdemowp.com/wp-content/uploads/2021/05/testimonial-1-1-1.jpg',
+          src: bannerImage1,
           title: 'Título de la primera imagen',
           description: 'Descripción de la primera imagen...',
         },
         {
-          src: 'http://www.fundacionbepensa.org/wp-content/uploads/2020/11/PORTADA_Salud.jpg',
+          src: bannerImage2,
           title: 'Título de la segunda imagen',
           description: 'Descripción de la segunda imagen...',
         },

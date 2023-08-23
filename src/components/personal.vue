@@ -19,7 +19,7 @@
           <v-img class="rounded-oval" height="350" :src="getImageUrl(item.image)"></v-img>
           <v-card-title>{{ item.name }}</v-card-title>
           <v-card-text>
-            <div class="my-4 text-subtitle-1">{{ item.category }}</div>
+            <div class="my-4 text-subtitle-1">{{ item.area }}</div>
             <div>{{ item.description }}</div>
           </v-card-text>
           <v-divider class="mx-4"></v-divider>
@@ -80,7 +80,7 @@
         }
       },
       getAllCategories() {
-        this.allCategories = Array.from(new Set(this.originalItems.map(item => item.category)));
+        this.allCategories = Array.from(new Set(this.originalItems.map(item => item.area)));
       },
       filterItemsByCategory(selectedCategories) {
         if (selectedCategories.length === 0) {
@@ -88,7 +88,7 @@
           this.items = [...this.originalItems];
         } else {
           this.currentPage = 1;
-          this.items = this.originalItems.filter(item => selectedCategories.includes(item.category));
+          this.items = this.originalItems.filter(item => selectedCategories.includes(item.area));
         }
       },
       getImageUrl(image) {

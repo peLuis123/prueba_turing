@@ -1,8 +1,8 @@
 <template>
-    <v-data-table :headers="headers" :items="filteredItems" class="elevation-1 tabla">
+    <v-data-table :headers="headers" :search="search" :items="items" class="elevation-1 tabla">
         <template v-slot:top>
             <v-toolbar flat>
-                <v-toolbar-title>Personal Information</v-toolbar-title>
+                <v-toolbar-title>Informacion del Personal</v-toolbar-title>
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
@@ -10,7 +10,7 @@
 
                 <v-dialog v-model="dialog" max-width="500px">
                     <template v-slot:activator="{ on, attrs }">
-                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">New Item</v-btn>
+                        <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">Añadir</v-btn>
                     </template>
                     <v-card>
                         <form @submit.prevent="save">
@@ -21,25 +21,25 @@
                                 <v-container>
                                     <v-row>
                                         <v-col cols="12" sm="6">
-                                            <v-text-field v-model="editedItem.name" label="Name"></v-text-field>
+                                            <v-text-field v-model="editedItem.name" label="Nombre"></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6">
-                                            <v-select v-model="editedItem.area" :items="categories" label="Area"></v-select>
+                                            <v-select v-model="editedItem.area" :items="areas" label="Area"></v-select>
                                         </v-col>
                                         <v-col cols="12">
                                             <v-file-input v-model="editedItem.image" accept="image/*"
-                                                label="Image"></v-file-input>
+                                                label="Perfil"></v-file-input>
                                         </v-col>
                                         <v-col cols="12">
-                                            <v-textarea v-model="editedItem.description" label="Description"></v-textarea>
+                                            <v-textarea v-model="editedItem.description" label="Descripcion"></v-textarea>
                                         </v-col>
                                     </v-row>
                                 </v-container>
                             </v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                                <v-btn type="submit" color="blue darken-1" text>Save</v-btn>
+                                <v-btn color="blue darken-1" text @click="close">Cancelar</v-btn>
+                                <v-btn type="submit" color="blue darken-1" text>Guardar</v-btn>
                             </v-card-actions>
                         </form>
                     </v-card>
@@ -60,45 +60,44 @@
     </v-data-table>
 </template>
 <script>
-import { eventBus } from "@/main";
+
 
 export default {
     name: "personalCards",
     data: () => ({
         dialog: false,
+
         headers: [
-            { text: "Name", value: "name", sortable: true },
+            { text: "Nombre", value: "name", sortable: true },
             { text: "Area", value: "area", sortable: true },
-            { text: "Description", value: "description", sortable: false },
-            { text: "image", value: "image", sortable: false },
-            { text: "Actions", value: "actions", sortable: false },
+            { text: "Descripcion", value: "description", sortable: false },
+            { text: "Perfil", value: "image", sortable: false },
+            { text: "Acciones", value: "actions", sortable: false },
         ],
         items: [],
         editedIndex: -1,
         editedItem: {
+            id: "",
             name: "",
             area: "",
             description: "",
-            image: "",
+            image: null,
         },
         defaultItem: {
             name: "",
             area: "",
             description: "",
+
         },
         search: "",
-        categories: ["Engineering", "Culinary Arts", "Other"],
+        areas: [],
     }),
 
     computed: {
         formTitle () {
             return this.editedIndex === -1 ? "Añadir nuevo Personal" : "Editar Personal";
         },
-        filteredItems () {
-            return this.items.filter((item) =>
-                item.name.toLowerCase().includes(this.search.toLowerCase())
-            );
-        },
+
     },
 
     watch: {
@@ -109,10 +108,23 @@ export default {
 
     created () {
         this.fetchAllPersons();
-        eventBus.$on("data-changed", this.fetchAllPersons);
+        this.fetchAllAreas();
     },
 
     methods: {
+        async fetchAllAreas () {
+            try {
+                const response = await fetch('http://localhost:3000/v1/categorias/allareas');
+                if (response.ok) {
+                    const areas = await response.json();
+                    this.areas = areas;
+                } else {
+                    console.error('Error al obtener las áreas de especialización');
+                }
+            } catch (error) {
+                console.error('Error al procesar la solicitud:', error);
+            }
+        },
         async fetchAllPersons () {
             try {
                 const response = await fetch("http://localhost:3000/v1/personal/allpersons");
@@ -129,11 +141,14 @@ export default {
                 console.error("Error al procesar la solicitud:", error);
             }
         },
-
-
         editItem (item) {
+            console.log(item.id)
             this.editedIndex = this.items.indexOf(item);
-            this.editedItem = { ...item };
+            this.editedItem.area = item.area;
+            this.editedItem.id = item.id;
+            this.editedItem.description = item.description;
+            this.editedItem.name = item.name;
+            this.editedItem.image = null
             this.dialog = true;
         },
 
@@ -147,7 +162,7 @@ export default {
 
                     if (response.ok) {
                         this.items.splice(index, 1);
-                        eventBus.$emit("data-changed");
+
                     } else {
                         console.error("Error al eliminar el registro");
                     }
@@ -165,6 +180,7 @@ export default {
         },
 
         async save () {
+            console.log(this.editedItem.id)
             if (this.editedIndex > -1) {
                 const formData = new FormData();
                 formData.append("name", this.editedItem.name);
@@ -183,7 +199,7 @@ export default {
                     if (response.ok) {
                         const updatedItem = await response.json();
                         this.items.splice(this.editedIndex, 1, updatedItem);
-                        eventBus.$emit("data-changed");
+                        this.fetchAllPersons();
                         this.close();
                     } else {
                         console.error("Error al editar el registro");
@@ -207,7 +223,7 @@ export default {
                     if (response.ok) {
                         const newItem = await response.json();
                         this.items.push(newItem);
-                        eventBus.$emit("data-changed");
+                        this.fetchAllPersons();
                         this.close();
                     } else {
                         console.error("Error al agregar el registro");
