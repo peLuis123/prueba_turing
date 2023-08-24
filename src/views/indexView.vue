@@ -1,10 +1,10 @@
 <template>
   <div>
     <appBar />
-    <portadaComponent />
-    <personalCards />
-    <servicesClinica />
-    <comentariosCards />
+    <portadaComponent id="inicio"/>
+    <personalCards id="personal" />
+    <servicesClinica id="servicios"/>
+    <comentariosCards id="comentarios"/>
     <newComentarios/>
     <footerBottom />
 

@@ -34,7 +34,7 @@
               <h3>{{ userName }}</h3>
               <p class="text-caption mt-1">{{ userEmail }}</p>
 
-              <v-btn depressed rounded text @click="logout">Cerrar Sesión</v-btn>
+              <v-btn depressed rounded text @click="logout" :route="userLogoutRoute">Cerrar Sesión</v-btn>
             </div>
           </v-list-item-content>
         </v-card>
@@ -48,6 +48,7 @@ export default {
   name: "mainDash",
   data: () => ({
     jwtToken: localStorage.getItem("jwtToken"),
+    userLogoutRoute: '/',
     drawer: false,
     menuItems: [
       { title: 'Personal', icon: 'mdi-view-dashboard', route: '/dashboard/personal' },
@@ -60,6 +61,7 @@ export default {
       localStorage.removeItem("jwtToken");
       this.jwtToken = null;
       this.user = null;
+      this.$router.push(this.userLogoutRoute);
     },
   },
   computed: {

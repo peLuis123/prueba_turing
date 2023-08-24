@@ -7,9 +7,12 @@
                 <span>Clinica Sanfleet</span>
             </div>
             <v-spacer></v-spacer>
-            <v-btn v-for="(menu, index) in menus" :key="index" class="mx-2" elevation="0" color="transparent">
+            <div v-for="(menu, index) in menus" :key="index">
+            <v-btn :href="menu.ref" class="mx-2" elevation="0" color="transparent">
+                <!-- <a :href="menu.ref">{{ menu.name }}</a> -->
                 {{ menu.name }}
             </v-btn>
+        </div>
             <v-spacer></v-spacer>
             <v-btn class="mx-2" fab small color="transparent">
                 <v-icon>
@@ -84,15 +87,19 @@ export default {
             menus: [
                 {
                     name: 'Inicio',
+                    ref: '#inicio'
                 },
                 {
                     name: 'Personal',
+                    ref: '#personal'
                 },
                 {
                     name: 'servicios',
+                    ref: '#servicios'
                 },
                 {
                     name: 'comentarios',
+                    ref: '#comentarios'
                 },
 
             ],

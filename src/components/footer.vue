@@ -38,7 +38,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; {{ currentYear }} Nombre de la Empresa. Todos los derechos reservados.</p>
+      <p>&copy; {{ currentYear }} sanfleet. Todos los derechos reservados.</p>
     </div>
   </footer>
 </template>

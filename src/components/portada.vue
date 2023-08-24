@@ -18,24 +18,24 @@ import bannerImage2 from '@/assets/img/banner1.png';
 export default {
   name: 'portadaComponent',
 
-  data() {
+  data () {
     return {
       items: [
         {
           src: bannerImage1,
-          title: 'Título de la primera imagen',
-          description: 'Descripción de la primera imagen...',
+          title: 'Bienvenido a Nuestra Clínica: Tu Salud es Nuestra Prioridad',
+          description: 'Descubre una atención médica de calidad en nuestra clínica, donde cuidamos de ti con pasión y experiencia. Ofrecemos una amplia gama de servicios médicos y tratamientos para promover tu bienestar integral.',
         },
         {
           src: bannerImage2,
-          title: 'Título de la segunda imagen',
-          description: 'Descripción de la segunda imagen...',
+          title: 'Explora Nuestros Servicios Médicos',
+          description: 'En nuestra clínica, te acompañamos en tu búsqueda de salud y calidad de vida. Descubre una variedad de servicios médicos especializados, desde prevención y diagnóstico hasta tratamientos avanzados, brindados por un equipo comprometido con tu bienestar y comodidad',
         },
       ],
     };
   },
   methods: {
-    showDetails(item) {
+    showDetails (item) {
       console.log(item.title)
     },
   },
