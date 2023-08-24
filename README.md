@@ -1,5 +1,10 @@
 # reto-turing
 
+### Demostracion
+```
+Se puede observar un video demostrativo con el nombre de Demo.mp4 en este repositorio
+```
+
 ## Project setup
 ```
 npm install
