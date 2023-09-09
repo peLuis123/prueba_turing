@@ -17,7 +17,8 @@
           <v-text-field v-model="password" label="Contraseña" type="password" v-if="activeTab === 0"></v-text-field>
           <v-text-field v-model="newUsername" label="Nombres Completos" v-if="activeTab === 1"></v-text-field>
           <v-text-field v-model="newEmail" label="Correo Electrónico" type="email" v-if="activeTab === 1"></v-text-field>
-          <v-file-input v-if="activeTab === 1" v-model="avatarFile" label="Imagen de Perfil" accept=".png,.jpg,.jpeg"></v-file-input>
+          <v-file-input v-if="activeTab === 1" v-model="avatarFile" label="Imagen de Perfil"
+            accept=".png,.jpg,.jpeg"></v-file-input>
           <v-text-field v-model="newPassword" label="Contraseña" type="password" v-if="activeTab === 1"></v-text-field>
         </v-form>
       </v-card-text>
@@ -30,6 +31,8 @@
   </v-dialog>
 </template>
 <script>
+import { Auth as AuthAPI } from '@/api/auth.js'
+
 export default {
 
   name: 'LoginModal',
@@ -67,19 +70,14 @@ export default {
     },
     async login () {
       try {
-        const response = await fetch('http://localhost:3000/v1/auth/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            email: this.username,
-            password: this.password
-          })
-        });
-        const data = await response.json();
-        if (data.message === 'Inicio de sesión exitoso') {
-          localStorage.setItem('jwtToken', data.token);
+        const data = {
+          email: this.username,
+          password: this.password
+        }
+        const response = await AuthAPI.login({ data })
+        const responseData = response.data
+        if (responseData.message === 'Inicio de sesión exitoso') {
+          localStorage.setItem('jwtToken', responseData.token);
           this.$emit("login-success");
 
           this.clearFields()
@@ -90,7 +88,7 @@ export default {
       }
     },
 
-    clearFields() {
+    clearFields () {
       this.username = '';
       this.password = '';
       this.newUsername = '';
@@ -105,25 +103,18 @@ export default {
           return;
         }
 
-        const formData = new FormData();
-        formData.append('avatar', this.avatarFile);
-        formData.append('role', 'user');
-        formData.append('name', this.newUsername);
-        formData.append('email', this.newEmail);
-        formData.append('password', this.newPassword);
+        const data = new FormData()
 
-        const response = await fetch('http://localhost:3000/v1/auth/register', {
-          method: 'POST',
-          body: formData,
-        });
+        data.append('avatar', this.avatarFile)
+        data.append('role', 'user')
+        data.append('name', this.newUsername)
+        data.append('email', this.newEmail)
+        data.append('password', this.newPassword)
 
-        const data = await response.json();
-        console.log(data);
-
-        if (response.ok) {
-          this.clearFields();
-          this.closeDialog();
-        }
+        const response = await AuthAPI.registerUser({ data })
+        console.dir('register', response);
+        this.clearFields();
+        this.closeDialog();
       } catch (error) {
         console.error('Error al registrar cuenta:', error);
       }

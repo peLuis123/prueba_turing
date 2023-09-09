@@ -57,7 +57,7 @@ export default {
         };
 
         this.loading = true;
-        this.success = false; // Desactivar el loader de éxito
+        this.success = false;
 
         fetch("http://localhost:3000/v1/comentarios/addcomment", {
           method: "POST",
