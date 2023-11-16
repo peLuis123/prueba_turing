@@ -69,6 +69,8 @@
 import loaderError from "../loaders/loaderError";
 import LoaderLoading from "../loaders/loaderLoanding";
 import LoaderSuccess from "../loaders/loaderExito";
+import { categoria as cateAPI } from '@/api/categoria.js'
+import { personal as personalAPI } from '@/api/personal.js'
 
 export default {
     name: "personalCards",
@@ -128,12 +130,11 @@ export default {
     methods: {
         async fetchAllAreas () {
             try {
-                const response = await fetch('http://localhost:3000/v1/categorias/allareas');
-                if (response.ok) {
-                    const areas = await response.json();
+                const response = await cateAPI.allareas
+                // console.log(response)
+                if (response.status >= 200 && response.status < 300) {
+                    const areas = await response.data;
                     this.areas = areas;
-                } else {
-                    console.error('Error al obtener las áreas de especialización');
                 }
             } catch (error) {
                 console.error('Error al procesar la solicitud:', error);
@@ -141,9 +142,10 @@ export default {
         },
         async fetchAllPersons () {
             try {
-                const response = await fetch("http://localhost:3000/v1/personal/allpersons");
-                if (response.ok) {
-                    const allPersons = await response.json();
+                const response = await await personalAPI.allpersons
+                // console.log(response)
+                if (response.status >= 200 && response.status < 300) {
+                    const allPersons = await response.data;
                     this.items = allPersons.map(item => {
                         item.image = `http://localhost:3000/${item.image}`;
                         return item;

@@ -37,6 +37,7 @@
 </template>
 <script>
 import jwt_decode from "jwt-decode";
+import { comentarios as comentariosAPI } from '@/api/comentarios.js'
 
 export default {
     name: 'comentariosCards',
@@ -50,6 +51,7 @@ export default {
     },
     created () {
         this.fetchComments();
+
         const jwtToken = localStorage.getItem('jwtToken');
         if (jwtToken) {
             try {
@@ -62,7 +64,6 @@ export default {
         }
 
         this.$root.$on("commentAdded", () => {
-
             this.fetchComments();
         });
         this.$root.$on("userLoggedIn", () => {
@@ -86,28 +87,38 @@ export default {
     methods: {
         async fetchComments () {
             try {
-
-                const response = await fetch('http://localhost:3000/v1/comentarios/getcomments');
-                const data = await response.json();
-                this.comments = data;
+                console.log('Fetching comments')
+                const response = await comentariosAPI.getComments()
+                if (response.status >= 200 && response.status < 300) {
+                    console.log(response.data)
+                    console.log('estamos en fetchcoments')
+                    const data = response.data;
+                    this.comments = data;
+                }
             } catch (error) {
                 console.error('Error al obtener los comentarios:', error);
             }
         },
         async deleteComment (commentId) {
             try {
-                const response = await fetch(`http://localhost:3000/v1/comentarios/deletecomment/${commentId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (response.ok) {
+                console.log('Deleting comment:', commentId)
+                const response = await comentariosAPI.deleteComment({commentId})
+                if (response.status >= 200 && response.status < 300) {
                     console.log('Comentario eliminado exitosamente');
                     this.fetchComments();
-                } else {
-                    console.error('Error al eliminar el comentario');
                 }
+                // const response = await fetch(`http://localhost:3000/v1/comentarios/deletecomment/${commentId}`, {
+                //     method: 'DELETE',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     }
+                // });
+                // if (response.ok) {
+                //     console.log('Comentario eliminado exitosamente');
+                //     this.fetchComments();
+                // } else {
+                //     console.error('Error al eliminar el comentario');
+                // }
             } catch (error) {
                 console.error('Error al eliminar el comentario:', error);
             }
@@ -130,7 +141,6 @@ export default {
 </script>
 
 <style scoped>
-
 .comments {
     background-color: #CFD8DF;
     padding: 50px 0;

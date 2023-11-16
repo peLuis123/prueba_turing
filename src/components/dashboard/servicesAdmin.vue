@@ -75,6 +75,7 @@
 import loaderError from "../loaders/loaderError";
 import LoaderLoading from "../loaders/loaderLoanding";
 import LoaderSuccess from "../loaders/loaderExito";
+import { categoria as cateAPI } from '@/api/categoria.js'
 export default {
     name: "serviceCards",
     components: {
@@ -135,15 +136,14 @@ export default {
     methods: {
         async fetchCategories () {
             try {
-                const response = await fetch('http://localhost:3000/v1/categorias/allservices');
-                if (response.ok) {
-                    const categories = await response.json();
+                const response = await cateAPI.allservices
+                // console.log(response)
+                if (response.status >= 200 && response.status < 300) {
+                    const categories = await response.data;
                     this.categories = categories;
-                } else {
-                    console.error('Error al obtener las categorías');
                 }
             } catch (error) {
-                console.error('Error al procesar la solicitud:', error);
+                console.error('Error al obtener las categorias', error);
             }
         },
 

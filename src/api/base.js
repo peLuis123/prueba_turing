@@ -5,12 +5,15 @@ const apiClient = axios.create({ baseURL: `http://localhost:3000/v1` })
 // Add a request interceptor
 apiClient.interceptors.request.use((config) => {
   // Do something before request is sent
-  console.log(config, 'soy interceptor inicial 11')
+  console.log(config.url)
 
   config.headers = {
     'accept': 'application/json'
     // 'Content-Type': 'application/json'
   }
+  config.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+  config.headers['Pragma'] = 'no-cache';
+  config.headers['Expires'] = '0';
 
   return config;
 

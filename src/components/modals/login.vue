@@ -75,11 +75,11 @@ export default {
           password: this.password
         }
         const response = await AuthAPI.login({ data })
+        // console.log(response)
         const responseData = response.data
         if (responseData.message === 'Inicio de sesión exitoso') {
           localStorage.setItem('jwtToken', responseData.token);
           this.$emit("login-success");
-
           this.clearFields()
           this.closeDialog();
         }
